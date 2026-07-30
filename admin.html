@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Panel</title>
+
+<style>
+body{font-family:Arial;background:#f4f6f9;margin:0}
+.header{background:#111;color:white;padding:15px}
+.container{padding:20px}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;
+}
+
+.card{background:white;padding:15px;border-radius:10px}
+
+.user-card{
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+  margin:10px 0;
+  background:white;
+  border-radius:10px;
+  align-items:center;
+}
+
+button{
+  padding:6px 12px;
+  margin:2px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:#22c55e;
+  color:white;
+}
+
+.reject-btn{background:#ef4444}
+</style>
+</head>
+
+<body>
+
+<div class="header">Admin Dashboard</div>
+
+<div class="container">
+
+  <div class="stats">
+    <div class="card">Total: <span id="totalUsers">0</span></div>
+    <div class="card">Pending: <span id="pendingUsers">0</span></div>
+    <div class="card">Approved: <span id="approvedUsers">0</span></div>
+  </div>
+
+  <input id="search" placeholder="Search user..." onkeyup="searchUser()" style="width:100%;padding:10px;margin:10px 0">
+
+  <div id="users"></div>
+
+</div>
+
+<script type="module" src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<script>
+  emailjs.init("fXb-36XnQ_PCGf7sZ");
+</script>
+
+
+</body>
+</html>

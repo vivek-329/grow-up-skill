@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Daily Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{
+  --bg:#020617;
+  --card:#111827;
+  --card2:#1e293b;
+  --text:#f8fafc;
+  --subtext:#94a3b8;
+  --accent:#6366f1;
+  --success:#22c55e;
+  --danger:#ef4444;
+  --border:rgba(148,163,184,.15);
+}
+
+.light{
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --card2:#f1f5f9;
+  --text:#0f172a;
+  --subtext:#64748b;
+  --accent:#4f46e5;
+  --success:#16a34a;
+  --danger:#dc2626;
+  --border:rgba(148,163,184,.2);
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  padding:22px;
+  transition:.3s ease;
+}
+
+/* Heading */
+h2{
+  text-align:center;
+  font-size:30px;
+  margin-bottom:25px;
+  font-weight:700;
+}
+
+h3{
+  font-size:15px;
+  font-weight:500;
+  margin:12px 0;
+  color:var(--subtext);
+}
+
+/* Stats cards */
+h3{
+  background:var(--card);
+  padding:14px 18px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+
+/* Goal input area */
+#goalInput{
+  width:90px !important;
+  padding:10px;
+  border:none;
+  outline:none;
+  border-radius:10px;
+  background:var(--card2);
+  color:var(--text);
+  margin:0 8px;
+}
+
+/* Buttons */
+button{
+  border:none;
+  padding:11px 18px;
+  border-radius:12px;
+  cursor:pointer;
+  font-size:14px;
+  font-weight:600;
+  background:linear-gradient(135deg,var(--accent),#8b5cf6);
+  color:white;
+  transition:.3s ease;
+  box-shadow:0 6px 18px rgba(99,102,241,.25);
+}
+
+button:hover{
+  transform:translateY(-2px);
+}
+
+.delete{
+  background:var(--danger) !important;
+  padding:8px 12px;
+  border-radius:10px;
+}
+
+/* Table container */
+table{
+  width:100%;
+  margin-top:22px;
+  border-collapse:collapse;
+  background:var(--card);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 8px 28px rgba(0,0,0,.08);
+  display:block;
+  overflow-x:auto;
+  white-space:nowrap;
+}
+
+th{
+  background:var(--accent);
+  color:white;
+  font-size:14px;
+  padding:14px;
+  font-weight:600;
+}
+
+td{
+  padding:12px;
+  border-bottom:1px solid var(--border);
+  text-align:center;
+}
+
+tr:hover{
+  background:rgba(99,102,241,.05);
+}
+
+/* Inputs */
+input[type="text"],
+input[type="number"],
+input[type="date"]{
+  width:100%;
+  min-width:110px;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  outline:none;
+  background:var(--card2);
+  color:var(--text);
+}
+
+input[type="checkbox"]{
+  width:18px;
+  height:18px;
+  accent-color:var(--success);
+  cursor:pointer;
+}
+
+/* Chart */
+canvas{
+  margin-top:25px;
+  background:var(--card);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+  width:100% !important;
+}
+
+/* Mobile */
+@media(max-width:768px){
+  body{
+    padding:14px;
+  }
+
+  h2{
+    font-size:24px;
+  }
+
+  h3{
+    font-size:14px;
+    padding:12px;
+  }
+
+  button{
+    width:100%;
+    margin-top:8px;
+  }
+
+  table{
+    font-size:13px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<h2>📊 Daily Progress Tracker</h2>
+
+<h3>Progress: <span id="progressText">0%</span></h3>
+<h3>🔥 Streak: <span id="streakText">0</span> days</h3>
+
+<h3>
+🎯 Goal: 
+<input type="number" id="goalInput" placeholder="Enter %" style="width:80px;">
+<button onclick="saveGoal()">Save</button>
+</h3>
+
+<h3>🤖 Suggestion: <span id="suggestionText">No suggestion yet</span></h3>
+
+<h3>Status: <span id="goalStatus">Not Set</span></h3>
+
+<button onclick="addRow()">+ Add Row</button>
+
+<table id="trackerTable">
+<tr>
+  <th>Date</th>
+  <th>Subject</th>
+  <th>Topic</th>
+  <th>Video</th>
+  <th>Work</th>
+  <th>Attendance</th>
+  <th>Doubt</th>
+  <th>Delete</th>
+</tr>
+</table>
+
+<canvas id="weeklyChart" height="100"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { 
+  getFirestore, collection, addDoc, getDocs, query, where,
+  doc, updateDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+let chart;
+
+// 🔥 Suggestion
+function generateSuggestion(){
+  let rows = document.getElementById("trackerTable").rows;
+  let suggestion = "All good 👍";
+
+  for(let i=1; i<rows.length; i++){
+    let subject = rows[i].cells[1].children[0].value;
+    let topic = rows[i].cells[2].children[0].value;
+    let video = rows[i].cells[3].children[0].checked;
+    let work = rows[i].cells[4].children[0].checked;
+    let doubt = rows[i].cells[6].children[0].value;
+
+    if(doubt && topic){
+      suggestion = `Revise "${topic}" (${subject}) - doubt pending`;
+      break;
+    }
+
+    if((!video || !work) && topic){
+      suggestion = `Complete "${topic}" (${subject})`;
+      break;
+    }
+  }
+
+  document.getElementById("suggestionText").innerText = suggestion;
+}
+
+// 🎯 Goal
+function saveGoal(){
+  let goal = document.getElementById("goalInput").value;
+  localStorage.setItem("goal", goal);
+  checkGoal();
+}
+
+function loadGoal(){
+  let goal = localStorage.getItem("goal");
+  if(goal){
+    document.getElementById("goalInput").value = goal;
+  }
+}
+
+function checkGoal(){
+  let goal = localStorage.getItem("goal");
+  let progressText = document.getElementById("progressText").innerText;
+
+  if(!goal){
+    document.getElementById("goalStatus").innerText = "Not Set";
+    return;
+  }
+
+  let progress = parseInt(progressText);
+
+  document.getElementById("goalStatus").innerText =
+    progress >= goal ? "✅ Goal Achieved" : "❌ Not Achieved";
+}
+
+// 📊 Chart
+function generateWeeklyChart(){
+  let rows = document.getElementById("trackerTable").rows;
+  let dataMap = {};
+
+  for(let i=1; i<rows.length; i++){
+    let date = rows[i].cells[0].children[0].value;
+    if(!date) continue;
+
+    let count = 0;
+    if(rows[i].cells[3].children[0].checked) count++;
+    if(rows[i].cells[4].children[0].checked) count++;
+    if(rows[i].cells[5].children[0].checked) count++;
+
+    dataMap[date] = (dataMap[date] || 0) + count;
+  }
+
+  let labels = Object.keys(dataMap).sort();
+  let values = labels.map(d => dataMap[d]);
+
+  if(chart) chart.destroy();
+
+  let ctx = document.getElementById("weeklyChart").getContext("2d");
+
+  chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Daily Progress",
+        data: values
+      }]
+    }
+  });
+}
+
+// 🔥 Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBrsmcsae8q786ugs1nfVHxquOErCTQJMw",
+  authDomain: "grow-up-skill.firebaseapp.com",
+  projectId: "grow-up-skill"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let currentUser = null;
+
+onAuthStateChanged(auth, (user)=>{
+  if(user){
+    currentUser = user.email;
+
+    if(currentUser === "vivekdhanani2005@gmail.com"){
+      loadAllUsersData(); // admin badha users nu data joi sake
+    } else {
+      loadFromFirebase(); // normal user potanu data j joi sake
+    }
+  }
+});
+// 📈 Progress
+function calculateProgress(){
+  let rows = document.getElementById("trackerTable").rows;
+  let total = 0, completed = 0;
+
+  for(let i=1; i<rows.length; i++){
+    let c = rows[i].cells;
+    if(c[3].children[0].checked) completed++;
+    if(c[4].children[0].checked) completed++;
+    if(c[5].children[0].checked) completed++;
+    total += 3;
+  }
+
+  let percent = total ? Math.round((completed/total)*100) : 0;
+  document.getElementById("progressText").innerText = percent + "%";
+  checkGoal();
+}
+
+// 🔥 Streak FIXED
+function calculateStreak(){
+  let rows = document.getElementById("trackerTable").rows;
+  let dates = [];
+
+  for(let i=1; i<rows.length; i++){
+    let date = rows[i].cells[0].children[0].value;
+    let c = rows[i].cells;
+
+    if(date && (c[3].children[0].checked || c[4].children[0].checked || c[5].children[0].checked)){
+      dates.push(date);
+    }
+  }
+
+  if(dates.length === 0){
+    document.getElementById("streakText").innerText = 0;
+    return;
+  }
+
+  dates = [...new Set(dates)].sort();
+  let streak = 1;
+
+  for(let i=dates.length-1; i>0; i--){
+    let current = new Date(dates[i]);
+    let prev = new Date(dates[i-1]);
+
+    let diff = (current - prev)/(1000*60*60*24);
+
+    if(diff === 1) streak++;
+    else break;
+  }
+
+  document.getElementById("streakText").innerText = streak;
+}
+
+// 💾 SAVE
+async function saveRow(row){
+  if(!currentUser) return;
+
+  let c = row.cells;
+  let docId = row.getAttribute("data-id");
+
+  let data = {
+    date: c[0].children[0].value,
+    subject: c[1].children[0].value,
+    topic: c[2].children[0].value,
+    video: c[3].children[0].checked,
+    work: c[4].children[0].checked,
+    attendance: c[5].children[0].checked,
+    doubt: c[6].children[0].value,
+    userId: currentUser
+  };
+
+  if(!docId){
+    let ref = await addDoc(collection(db,"tracker"), data);
+    row.setAttribute("data-id", ref.id);
+  } else {
+    await updateDoc(doc(db,"tracker",docId), data);
+  }
+
+  calculateProgress();
+  calculateStreak();
+  generateWeeklyChart();
+  generateSuggestion();
+}
+
+// 🔥 LOAD
+async function loadFromFirebase() {
+  let table = document.getElementById("trackerTable");
+  
+  table.innerHTML = `
+  <tr>
+    <th>Date</th><th>Subject</th><th>Topic</th>
+    <th>Video</th><th>Work</th><th>Attendance</th>
+    <th>Doubt</th><th>Delete</th>
+  </tr>`;
+  
+  const q = query(collection(db, "tracker"), where("userId", "==", currentUser));
+  const snap = await getDocs(q);
+  
+  snap.forEach(docSnap => {
+    createRow(docSnap.data(), docSnap.id);
+  });
+  
+  if (snap.empty) addRow();
+  
+  calculateProgress();
+  calculateStreak();
+  generateWeeklyChart();
+  generateSuggestion();
+  loadGoal();
+  checkGoal();
+}
+
+
+async function loadAllUsersData() {
+  let table = document.getElementById("trackerTable");
+  
+  const snap = await getDocs(collection(db, "tracker"));
+  
+  snap.forEach(docSnap => {
+    const item = docSnap.data();
+    
+    let row = table.insertRow();
+    row.innerHTML = `
+      <td>${item.name || item.userId}</td>
+      <td>${item.date || ""}</td>
+      <td>${item.subject || ""}</td>
+      <td>${item.topic || ""}</td>
+      <td>${item.video ? "✅" : "❌"}</td>
+      <td>${item.work ? "✅" : "❌"}</td>
+      <td>${item.attendance ? "✅" : "❌"}</td>
+      <td>${item.doubt || ""}</td>
+    `;
+  });
+}
+
+// 🔧 ROW
+function createRow(item={}, docId=null){
+  let row = document.getElementById("trackerTable").insertRow();
+
+  if(docId) row.setAttribute("data-id", docId);
+
+  row.innerHTML = `
+    <td><input type="date" value="${item.date||""}"></td>
+    <td><input type="text" value="${item.subject||""}"></td>
+    <td><input type="text" value="${item.topic||""}"></td>
+    <td><input type="checkbox" ${item.video?"checked":""}></td>
+    <td><input type="checkbox" ${item.work?"checked":""}></td>
+    <td><input type="checkbox" ${item.attendance?"checked":""}></td>
+    <td><input type="text" value="${item.doubt||""}"></td>
+    <td><button class="delete" onclick="deleteRow(this)">X</button></td>
+  `;
+
+  row.querySelectorAll("input").forEach(inp=>{
+    inp.addEventListener("change", ()=> saveRow(row));
+  });
+}
+
+// ➕ ADD
+window.addRow = ()=> createRow();
+
+// ❌ DELETE
+window.deleteRow = async(btn)=>{
+  let row = btn.parentNode.parentNode;
+  let id = row.getAttribute("data-id");
+
+  if(id) await deleteDoc(doc(db,"tracker",id));
+
+  row.remove();
+  calculateProgress();
+  calculateStreak();
+  generateWeeklyChart();
+  generateSuggestion();
+}
+
+</script>
+<script>
+function applyTheme(theme) {
+  if (theme === "light") {
+    document.documentElement.classList.add("light");
+    document.body.classList.add("light");
+  } else {
+    document.documentElement.classList.remove("light");
+    document.body.classList.remove("light");
+  }
+}
+
+// page load pe saved theme apply
+applyTheme(localStorage.getItem("theme"));
+
+// dashboard iframe se live theme update
+window.addEventListener("message", function(event) {
+  if (event.data.type === "themeChange") {
+    applyTheme(event.data.theme);
+  }
+});
+</script>
+</body>
+</html>

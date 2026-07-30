@@ -1,0 +1,835 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Student Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#020617;
+  --card:#111827;
+  --text:#f8fafc;
+  --accent:#6366f1;
+  --accent2:#22c55e;
+  --nav:#0f172a;
+  --nav-btn:#1e293b;
+  --menu-btn:#334155;
+  --border:rgba(255,255,255,0.08);
+}
+
+.light{
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --text:#0f172a;
+  --accent:#2563eb;
+  --accent2:#10b981;
+  --nav:#ffffff;
+  --nav-btn:#f1f5f9;
+  --menu-btn:#eff6ff;
+  --border:#e2e8f0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  transition: all .3s ease;
+}
+
+input, select{
+  background:#f8fafc;
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:12px;
+}
+/* NAVBAR */
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:16px 18px;
+  background: var(--nav);
+  color:var(--text);
+  box-shadow:0 6px 18px rgba(0,0,0,0.12);
+  position:sticky;
+  top:0;
+  z-index:1000;
+  animation:slideDown .6s ease;
+}
+
+.logo-box{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:20px;
+  font-weight:700;
+}
+
+.logo-box img{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+}
+
+.center-section{
+  text-align:center;
+}
+
+.center-section h2{
+  font-size:18px;
+  margin-top:6px;
+}
+
+.motive{
+  font-size:14px;
+  opacity:.7;
+  font-style:italic;
+}
+
+.right-section{
+  display:flex;
+  gap:10px;
+}
+
+button,
+.logout-btn,
+.icon-btn{
+  font-family:'Poppins',sans-serif !important;
+  border:none;
+  cursor:pointer;
+  transition:.3s ease;
+}
+
+.icon-btn{
+  padding:10px 14px;
+  border-radius:12px;
+  background:var(--nav-btn);
+  color:var(--text);
+}
+#courseNav{
+  display:flex !important;
+  gap:12px !important;
+  overflow-x:auto !important;
+  padding:12px 6px !important;
+  margin-bottom:20px !important;
+}
+
+#courseNav button{
+  min-width:120px !important;
+  padding:10px 12px !important;
+  border:none !important;
+  border-radius:12px !important;
+  background:linear-gradient(135deg,#1e293b,#334155) !important;
+  color:#fff !important;
+  font-size:13px !important;
+  font-weight:600 !important;
+  cursor:pointer !important;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2) !important;
+  transition:all 0.3s ease !important;
+}
+
+#courseNav button:hover{
+  transform:translateY(-4px) scale(1.03) !important;
+  background:linear-gradient(135deg,#2563eb,#4f46e5) !important;
+}
+
+#courseNav button:active{
+  transform:scale(0.96) !important;
+}
+.logout-btn{
+  padding:10px 16px;
+  border-radius:12px;
+ background:#dc2626;
+  color:white;
+  font-size:14px;
+  font-weight:600;
+}
+
+.icon-btn:hover,
+.logout-btn:hover{
+  transform:translateY(-2px);
+}
+
+/* NAV MENU */
+.nav-menu{
+  display:flex;
+  gap:12px;
+  padding:14px;
+  overflow-x:auto;
+  background:var(--card);
+  box-shadow:0 4px 12px rgba(0,0,0,.06);
+}
+
+.nav-menu button{
+ background:var(--menu-btn);
+  color:var(--text);
+  padding:12px 18px;
+  border-radius:14px;
+  white-space:nowrap;
+  font-size:14px;
+  font-weight:500;
+  min-width:max-content;
+}
+
+.nav-menu button:hover{
+  background:var(--accent);
+  color:white;
+  transform:translateY(-2px);
+}
+
+.complete-btn{
+  background:#16a34a !important;
+  color:white !important;
+}
+
+/* PAGE SECTIONS */
+.section{
+  max-width:1000px;
+  margin:auto;
+  padding:18px;
+  display:none;
+  animation:fade .5s ease;
+}
+
+/* CARDS */
+.card{
+  background:var(--card);
+  color:var(--text);
+  padding:20px;
+  margin:18px 0;
+  border-radius:18px;
+  box-shadow:0 8px 24px rgba(15,23,42,0.06);
+  transition:.3s ease;
+  border:1px solid var(--border);
+}
+.card:hover{
+  transform:translateY(-3px);
+}
+
+/* VIDEO */
+.video-container{
+  position:relative;
+  width:100%;
+  padding-bottom:56.25%;
+}
+
+.video-container iframe{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  border:none;
+  border-radius:14px;
+}
+
+/* TEXT */
+p{
+  font-size:14px;
+  color:var(--text);
+  opacity:.8;
+  margin-top:10px;
+}
+
+h2,h3{
+  font-weight:700;
+  letter-spacing:.3px;
+}
+
+/* LINKS */
+a{
+  display:inline-block;
+  margin-top:10px;
+  padding:10px 14px;
+  border-radius:10px;
+  background:var(--accent);
+  color:white;
+  text-decoration:none;
+}
+
+/* PROGRESS */
+.progress-bar{
+  width:100%;
+  height:10px;
+  background:#dbeafe;
+  border-radius:20px;
+  overflow:hidden;
+  margin:14px 0;
+}
+
+#progressFill{
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg,#2563eb,#10b981);
+color:white;}
+
+/* FOLDER */
+.folder{
+  background:var(--card);
+  color:var(--text);
+  padding:16px;
+  margin:12px 0;
+  border-left:4px solid var(--accent2);
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,.05);
+}
+
+/* ANIMATIONS */
+@keyframes fade{
+  from{
+    opacity:0;
+    transform:translateY(15px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+@keyframes slideDown{
+  from{
+    opacity:0;
+    transform:translateY(-20px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{
+  height:5px;
+  width:5px;
+}
+
+::-webkit-scrollbar-thumb{
+  background:var(--accent);
+  border-radius:10px;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+  .navbar{
+    flex-direction:column;
+    gap:14px;
+    text-align:center;
+  }
+
+  .center-section h2{
+    font-size:17px;
+  }
+
+  .nav-menu{
+    padding:12px;
+  }
+
+  .card{
+    padding:16px;
+  }
+
+  iframe{
+    height:220px;
+  }
+}
+</style>
+  </head>
+
+  <body>
+  
+  <header class="navbar">
+    
+    <div class="left-section">
+      <div class="logo-box">
+        <img src="fevicon.jpg" alt="Grow-up-skill" style="height: 40px;border-radius: 10px; vertical-align: middle"
+        />
+        <span>GrowUp Skill</span>
+      </div>
+    </div>
+    
+    <div class="center-section">
+      <p class="motive">Never Give Up! Champ 💡</p>
+      <h2>Student Dashboard</h2>
+    </div>
+    
+    <div class="right-section">
+      <button onclick="toggleTheme()" class="icon-btn">🌙</button>
+      <button onclick="logout()" class="logout-btn">Logout</button>
+    </div>
+    
+  </header>
+  
+  <!-- NAV -->
+  <nav class="nav-menu">
+    <button onclick="showPage('tracker')">📊 Tracker</button>
+    <button onclick="showPage('courses')">📚 Courses</button>
+    <button onclick="showPage('dev')">⚙ Dev Setup</button>
+    <button onclick="showPage('git')">📁 Git & GitHub</button>
+    <button onclick="showPage('frontend')">🎨 Challenges</button>
+    <button onclick="showPage('resources')">📂 Resources</button>
+    <button onclick="markComplete('html')" class="complete-btn">
+      ✔ Complete
+    </button>
+  </nav>
+<div id="tracker" class="section">
+  <div class="card">
+    <h2>📊 Daily Tracker</h2>
+
+   <iframe src="tracker.html" style="width:100%;height:80vh;border:none;"></iframe>
+
+  </div>
+</div>
+    <div class="progress-bar">
+      <div id="progressFill"></div>
+    </div>
+
+  <div id="courses" class="section">
+  
+  <div id="courseNav">
+    <button onclick="showCourse('webdesigner')">🌐 Web Designer</button>
+    <button onclick="showCourse('wordpress')">📝 WordPress Developer</button>
+    <button onclick="showCourse('shopify')">🛒 Shopify Developer</button>
+    <button onclick="showCourse('software')">💻 Software Engineer</button>
+    <button onclick="showCourse('graphic')">🎨 Graphic Designer</button>
+  </div>
+  <!-- WEB DESIGNER -->
+  <div id="webdesigner" class="course-box">
+
+    <div class="card">
+      <h3>HTML Course</h3>
+      <iframe src="https://www.youtube.com/embed/HcOc7P5BMi4?enablejsapi=1" allowfullscreen></iframe>
+      <p>Learn HTML from basics to advanced.</p>
+    </div>
+
+    <div class="card">
+      <h3>CSS Course</h3>
+      <iframe src="https://www.youtube.com/embed/ESnrn1kAD4E?enablejsapi=1" allowfullscreen></iframe>
+      <p>Learn CSS for responsive and modern UI.</p>
+    </div>
+
+    <div class="card">
+      <h3>HTML + CSS + JS Full Course</h3>
+      <iframe src="https://www.youtube.com/embed/cLOT0APQzDs?enablejsapi=1" allowfullscreen></iframe>
+      <p>Complete frontend basics course.</p>
+    </div>
+
+    <div class="card">
+      <h3>JavaScript Course</h3>
+      <iframe src="https://www.youtube.com/embed/lfmg-EJ8gm4?enablejsapi=1" allowfullscreen></iframe>
+      <p>Master JavaScript concepts and DOM.</p>
+       <iframe src="https://www.youtube.com/embed/videoseries?list=PLu71SKxNbfoBuX3f4EOACle2y-tRC5Q37" allowfullscreen></iframe>
+      <p>Full js Chai or Js</p>
+      
+    </div>
+
+    <div class="card">
+      <h3>React Course</h3>
+      <iframe src="https://www.youtube.com/embed/3LRZRSIh_KE?enablejsapi=1" allowfullscreen></iframe>
+      <p>Learn React for modern web apps.</p>
+       <iframe 
+    src="https://www.youtube.com/embed/videoseries?list=PLZlA0Gpn_vH8EtggFGERCwMY5u5hOjf-h"
+    allowfullscreen>
+  </iframe>
+  <p>Learn Hooks for React</p>
+    </div>
+
+  </div>
+
+  <!-- WORDPRESS -->
+  <div id="wordpress" class="course-box" style="display:none;">
+    <div class="card">
+      <h3>WordPress Course</h3>
+      <iframe src="https://www.youtube.com/embed/GlLRYml8mCY" allowfullscreen></iframe>
+      <p>Learn WordPress website development.</p>
+      <iframe 
+    src="https://www.youtube.com/embed/xNhiOi4O8yw"
+    allowfullscreen>
+  </iframe> <p>Wordpress website  + theme + plugin + live project</p>
+   <iframe 
+    src="https://www.youtube.com/embed/i12mCvjpNkw"
+    allowfullscreen>
+  </iframe><p>Wordpress + Ai</p>
+    </div>
+  </div>
+
+  <!-- SHOPIFY -->
+  <div id="shopify" class="course-box" style="display:none;">
+    <div class="card">
+      <h3>Shopify Course</h3>
+    <iframe 
+  src="https://www.youtube.com/embed/_iZp66ycgfE"
+  allowfullscreen>
+</iframe>
+      <p>Learn Shopify ecommerce store building.</p>
+    </div>
+  </div>
+
+  <!-- SOFTWARE ENGINEER -->
+  <div id="software" class="course-box" style="display:none;">
+<div class="card">
+  <h3>Software Engineering Full Course</h3>
+  <iframe 
+    src="https://www.youtube.com/embed/UrsmFxEIp5k"
+    allowfullscreen>
+  </iframe>
+  <p>Learn Software engineer full course.</p>
+   <iframe src="https://www.youtube.com/embed/xTtL8E4LzTQ" allowfullscreen></iframe>
+      <p>Full Course java for free</p>
+</div>
+  </div>
+
+  <!-- GRAPHIC DESIGN -->
+  <div id="graphic" class="course-box" style="display:none;">
+    <div class="card">
+      <h3>Graphic Designing</h3>
+      <iframe src="https://www.youtube.com/embed/IyR_uYsRdPs" allowfullscreen></iframe>
+      <p>Learn graphic design tools and concepts.</p>
+      <iframe 
+    src="https://www.youtube.com/embed/videoseries?list=PLjVLYmrlmjGcvBiUmkBQ5isfnBufjnAu3"
+    allowfullscreen>
+  </iframe>  
+  <p>Learn graphic design tools and concepts.</p>
+    </div>
+  </div>
+</div>
+
+    <!-- ⚙ DEV SETUP -->
+    <div id="dev" class="section">
+      <div class="card">
+        <h2>⚙ Development Setup</h2>
+        <h3>🖥️ Code Editor - Visual Studio Code</h3>
+        <p>
+          VS Code is a lightweight and powerful code editor used for HTML, CSS,
+          JavaScript, and many other languages.
+        </p>
+        <a href="https://code.visualstudio.com/download" target="_blank"
+          >Download VS Code</a
+        >
+        <hr />
+        <h3>🪟 Windows Setup</h3>
+        <ul>
+          <li>Download VS Code</li>
+          <li>Run the <b>.exe</b> file</li>
+          <li>Follow installation steps</li>
+          <li>✔ Enable "Add to PATH"</li>
+          <li>Launch from Start Menu</li>
+        </ul>
+        <hr />
+        <h3>🐧 Linux Setup</h3>
+        <p><b>Debian / Ubuntu:</b></p>
+        <pre>
+sudo apt update
+sudo apt install ./file.deb</pre
+        >
+        <p><b>Fedora (RPM):</b></p>
+        <pre>sudo rpm -i file.rpm</pre>
+        <p><b>Snap:</b></p>
+        <pre>sudo snap install code --classic</pre>
+        <hr />
+        <h3>🍎 macOS Setup</h3>
+        <ul>
+          <li>Download VS Code</li>
+          <li>Open .zip file</li>
+          <li>Drag to Applications folder</li>
+          <li>Open from Applications</li>
+        </ul>
+        <hr />
+        <h3>🧩 Extensions (Recommended)</h3>
+        <ul>
+          <li>Live Server</li>
+          <li>Prettier</li>
+          <li>ESLint</li>
+          <li>GitLens</li>
+        </ul>
+        <hr />
+        <h3>💡 Useful Tips</h3>
+        <ul>
+          <li>Use <b>code .</b> to open project in terminal</li>
+          <li>Customize settings from ⚙ icon</li>
+          <li>Auto updates available</li>
+        </ul>
+        <hr />
+        <h3>🔗 Useful Links</h3>
+        <a href="https://code.visualstudio.com/docs" target="_blank"
+          >Documentation</a
+        >
+        <br /><br />
+        <a href="https://marketplace.visualstudio.com/" target="_blank"
+          >Extensions Marketplace</a
+        >
+      </div>
+    </div>
+
+    <!-- 📁 GIT -->
+    <div id="git" class="section">
+      <div class="card">
+        <h2>📁 Git & GitHub Guide</h2>
+        <p>
+          <b>Git</b> is a Version Control System created by Linus Torvalds. It
+          helps you track code changes, manage versions, and collaborate with
+          others.
+        </p>
+        <hr />
+        <h3>📥 Step 1: Install Git</h3>
+        <p>Download Git from the official website:</p>
+        <a href="https://git-scm.com/downloads" target="_blank">Download Git</a>
+        <hr />
+        <h3>⚙ Step 2: Configure Git</h3>
+        <p>After installation, open Terminal / CMD and run:</p>
+        <pre>
+git config --global user.name "Your Name"
+git config --global user.email "your_email@example.com"</pre
+        >
+        <hr />
+        <h3>📂 Step 3: Start Your First Project</h3>
+        <p>Initialize Git in your project folder:</p>
+        <pre>
+git init
+git add .
+git commit -m "First commit"</pre
+        >
+        <hr />
+        <h3>🌐 Step 4: Connect to GitHub</h3>
+        <p>Create a repository on GitHub, then connect it:</p>
+        <pre>
+git remote add origin https://github.com/your-username/your-repo.git
+git branch -M main
+git push -u origin main</pre
+        >
+        <hr />
+        <h3>🔁 Daily Commands</h3>
+        <pre>
+git add .
+git commit -m "update"
+git push</pre
+        >
+        <hr />
+        <h3>🌍 GitHub</h3>
+        <p>
+          GitHub is a platform where you store your code online and collaborate
+          with others.
+        </p>
+        <a href="https://github.com" target="_blank">Open GitHub</a>
+        <hr />
+        <h3>💡 Tips</h3>
+        <ul>
+          <li>Always commit small changes</li>
+          <li>Write clear commit messages</li>
+          <li>Push regularly</li>
+          <li>Use GitHub to showcase your projects</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 🎨 Challenges -->
+    <div id="frontend" class="section">
+      <div class="card">
+        <h2>🎨 Frontend Challenges</h2>
+        <div class="folder">
+          <h3>📌 Challenge 1 - FAQ Accordion</h3>
+          <a
+            href="https://www.frontendmentor.io/challenges/faq-accordion-wyfFdeBwBz"
+            target="_blank"
+            >Open Challenge</a
+          >
+        </div>
+        <div class="folder">
+          <h3>📌 Challenge 2 - Profile Card</h3>
+          <a
+            href="https://www.frontendmentor.io/challenges/profile-card-component-cfArpWshJ"
+            target="_blank"
+            >Open Challenge</a
+          >
+        </div>
+        <div class="folder">
+          <h3>📌 Challenge 3 - Weather App</h3>
+          <a
+            href="https://www.frontendmentor.io/challenges/weather-app-K1FhddVm49"
+            target="_blank"
+            >Open Challenge</a
+          >
+        </div>
+        <div class="folder">
+          <h3>📌 Challenge 4 - QR Code Component</h3>
+          <a
+            href="https://www.frontendmentor.io/challenges/qr-code-component-iux_sIO_H"
+            target="_blank"
+            >Open Challenge</a
+          >
+        </div>
+        <div class="folder">
+          <h3>📌 Challenge 5 - Stats Preview Card</h3>
+          <a
+            href="https://www.frontendmentor.io/challenges/stats-preview-card-component-8JqbgoU62"
+            target="_blank"
+            >Open Challenge</a
+          >
+        </div>
+        <div class="folder">
+          <h3>📌 Challenge 6 - Social Links Profile</h3>
+          <a
+            href="https://www.frontendmentor.io/challenges/social-links-profile-UG32l9m6dQ"
+            target="_blank"
+            >Open Challenge</a
+          >
+        </div>
+        <div class="folder">
+          <h3>📌 Challenge 7 - Blog Preview Card</h3>
+          <a
+            href="https://www.frontendmentor.io/challenges/blog-preview-card-ckPaj01IcS"
+            target="_blank"
+            >Open Challenge</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- 📂 RESOURCES FOLDER SYSTEM -->
+    <div id="resources" class="section">
+      <div class="card">
+        <h2>📂 Developer Resources</h2>
+        <div class="folder">
+          <h3>📄 HTML Notes</h3>
+          <a
+            href="https://developer.mozilla.org/en-US/docs/Web/HTML"
+            target="_blank"
+            >Open Docs</a
+          >
+        </div>
+        <div class="folder">
+          <h3>🎨 CSS Resources</h3>
+          <a
+            href="https://developer.mozilla.org/en-US/docs/Web/CSS"
+            target="_blank"
+            >Open Docs</a
+          >
+        </div>
+        <div class="folder">
+          <h3>⚡ JavaScript Docs</h3>
+          <a
+            href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"
+            target="_blank"
+            >Open Docs</a
+          >
+        </div>
+        <div class="folder">
+          <h3>🖼️ React Frame</h3>
+          <a
+            href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Frameworks_libraries/React_getting_started"
+            target="_blank"
+            >Open Docs</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- ⚡ SCRIPTS -->
+  <script type="module" src="app.js"></script>
+
+<script>
+  // Page navigation
+  window.showPage = (page) => {
+  document.querySelectorAll(".section").forEach(section => {
+    section.style.display = "none";
+  });
+  
+  const activePage = document.getElementById(page);
+  if (activePage) {
+    activePage.style.display = "block";
+  }
+  
+  // courses open thay tyare default web designer show
+  if (page === "courses") {
+    showCourse("webdesigner");
+  }
+};function showCourse(course){
+  document.querySelectorAll(".course-box").forEach(box=>{
+    box.style.display = "none";
+  });
+
+  document.getElementById(course).style.display = "block";
+}
+  // Theme toggle + save
+  function toggleTheme() {
+  document.body.classList.toggle("light");
+
+  const theme = document.body.classList.contains("light")
+    ? "light"
+    : "dark";
+
+  localStorage.setItem("theme", theme);
+
+  // tracker iframe ko theme send karo
+  const iframe = document.querySelector("iframe");
+  if (iframe) {
+    iframe.contentWindow.postMessage(
+      {
+        type: "themeChange",
+        theme: theme
+      },
+      "*"
+    );
+  }
+}
+  
+  // Load saved theme
+  window.onload = () => {
+    let savedTheme = localStorage.getItem("theme");
+    
+    if (savedTheme === "light") {
+      document.body.classList.add("light");
+    }
+  };
+  
+  
+  let videoCompleted = false;
+  
+  // YouTube API
+  let tag = document.createElement("script");
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.body.appendChild(tag);
+  
+  let player;
+  
+  window.onYouTubeIframeAPIReady = function() {
+    const iframe = document.querySelector("iframe");
+    
+    if (iframe) {
+      player = new YT.Player(iframe, {
+        events: {
+          onStateChange: onPlayerStateChange
+        }
+      });
+    }
+  };
+  
+  function onPlayerStateChange(event) {
+    if (event.data === 0) {
+      videoCompleted = true;
+      alert("Video completed! Now you can mark as complete ✅");
+    }
+  }
+  
+  window.markComplete = (course) => {
+    if (!videoCompleted) {
+      alert("❌ Finish the video first ");
+      return;
+    }
+    
+    let progress = document.getElementById("progressFill");
+    if (progress) {
+      progress.style.width = "100%";
+    }
+    
+    alert("🎉 Course Completed!");
+  };
+</script>
+  </body>
+</html>
